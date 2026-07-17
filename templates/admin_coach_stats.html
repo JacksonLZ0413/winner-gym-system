@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教练课时统计 - 管理后台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #f5f5f5; }
+        .navbar { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .navbar a { color: rgba(255,255,255,0.8); text-decoration: none; margin-left: 1.5rem; }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-box { background: white; border-radius: 12px; padding: 1.2rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .stat-box .val { font-size: 2rem; font-weight: bold; }
+        .stat-box .lbl { color: #666; font-size: 0.9rem; margin-top: 0.3rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+        tr:hover { background: #fafafa; }
+        .star { color: #ffc107; letter-spacing: 2px; }
+        .progress-bar { background: #e9ecef; border-radius: 10px; height: 8px; overflow: hidden; margin-top: 4px; }
+        .progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.5s; }
+        .month-select { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .month-select select, .month-select button { padding: 0.5rem 1rem; border: 2px solid #e8e8e8; border-radius: 8px; font-size: 0.9rem; }
+        .month-select button { background: #667eea; color: white; border: none; cursor: pointer; }
+        .month-select button:hover { opacity: 0.9; }
+        .rank-badge { display: inline-block; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; color: white; font-size: 0.85rem; }
+        .rank-1 { background: #ffd700; }
+        .rank-2 { background: #c0c0c0; }
+        .rank-3 { background: #cd7f32; }
+        h2, h3 { margin-bottom: 1rem; }
+        .btn { display: inline-block; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; border: none; font-size: 0.9rem; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-success { background: #4ecca3; color: #1a1a2e; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: white; }
+        .alert-success { background: #4ecca3; }
+        @media(max-width:768px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <span style="font-size:1.2rem;font-weight:bold;">⚙️ 管理后台</span>
+        <div><a href="/admin">返回概览</a><a href="/admin/dashboard">经营大屏</a><a href="/logout">退出</a></div>
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="container">
+        <div class="card-header">
+            <h2>📊 教练课时统计</h2>
+            <div class="month-select">
+                <form method="get" id="monthForm">
+                    <select name="month" id="monthSelect">
+                        {% for m in months %}
+                            <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                <script>
+                document.getElementById('monthSelect').addEventListener('change', function() {
+                    document.getElementById('monthForm').submit();
+                });
+                </script>
+                <a href="/admin/stats/coaches?month={{ month }}" class="btn btn-primary">刷新</a>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="val" style="color:#667eea;">{{ total_completed }}</div>
+                <div class="lbl">完成课时</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" style="color:#ffc107;">{{ total_confirmed }}</div>
+                <div class="lbl">待上课时</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" style="color:#dc3545;">{{ total_cancelled }}</div>
+                <div class="lbl">取消课时</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" style="color:#4ecca3;">{{ coaches|length }}</div>
+                <div class="lbl">活跃教练</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>{{ month }} 教练排名</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>教练</th>
+                        <th>完成课时</th>
+                        <th>待上课</th>
+                        <th>取消</th>
+                        <th>完成率</th>
+                        <th>平均评分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in coaches %}
+                {% set total = c.total or 1 %}
+                {% set rate = (c.completed / total * 100)|round|int %}
+                <tr>
+                    <td>
+                        {% if loop.index == 1 %}<span class="rank-badge rank-1">1</span>
+                        {% elif loop.index == 2 %}<span class="rank-badge rank-2">2</span>
+                        {% elif loop.index == 3 %}<span class="rank-badge rank-3">3</span>
+                        {% else %}<span class="rank-badge" style="background:#e8e8e8;color:#666;">{{ loop.index }}</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ c.name }}</strong></td>
+                    <td><span style="color:#4ecca3;font-weight:bold;">{{ c.completed }}</span></td>
+                    <td><span style="color:#ffc107;">{{ c.confirmed + c.pending }}</span></td>
+                    <td><span style="color:#dc3545;">{{ c.cancelled }}</span></td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <div class="progress-bar" style="width:100px;">
+                                <div class="progress-fill" style="width:{{ rate }}%; background: {% if rate >= 80 %}#4ecca3{% elif rate >= 50 %}#ffc107{% else %}#dc3545{% endif %};"></div>
+                            </div>
+                            <span style="font-size:0.85rem;color:#666;">{{ rate }}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% set avg_rating = c.avg_rating or 0 %}
+                        <span class="star">{{ "★" * (avg_rating|int) }}{{ "☆" * (5 - avg_rating|int) }}</span>
+                        <span style="color:#666;font-size:0.85rem;">{{ "%.1f"|format(avg_rating) }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

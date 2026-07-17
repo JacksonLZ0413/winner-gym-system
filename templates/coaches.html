@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}教练团队 - Winner Train 韦能健身{% endblock %}
+
+{% block content %}
+<section class="coaches-header">
+    <div class="container">
+        <h1 class="page-title">选择你的私人教练</h1>
+        <p class="page-subtitle">专业认证教练，一对一指导，帮你达成健身目标</p>
+    </div>
+</section>
+
+<section class="coaches-section">
+    <div class="container">
+        {% if coaches %}
+        <div class="grid">
+            {% for coach in coaches %}
+            <div class="coach-card">
+                <div class="coach-card-header">
+                    {{ coach.name[0] }}
+                </div>
+                <div class="coach-card-body">
+                    <h3>{{ coach.name }}</h3>
+                    <p class="coach-specialty">{{ coach.specialty }}</p>
+                    <div class="coach-rating">
+                        {% for i in range(5) %}
+                            {% if i < coach.rating|int %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                        <span class="coach-rating-count">({{ coach.rating_count }}条评价)</span>
+                    </div>
+                    <div class="coach-meta">
+                        <span class="coach-experience">{{ coach.experience }}年经验</span>
+                    </div>
+                    <a href="{{ url_for('coach_detail', coach_id=coach.id) }}" class="btn btn-primary btn-block">查看详情</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🏋️</div>
+            <h3 class="empty-state-title">暂无教练</h3>
+            <p>敬请期待更多专业教练加入</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}用户管理 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>👥 用户管理</h2>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">返回</a>
+    </div>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>姓名</th>
+                    <th>角色</th>
+                    <th>手机号</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>
+                        {% if user.role == 'admin' %}
+                        <span class="badge" style="background: #667eea; color: white;">管理员</span>
+                        {% elif user.role == 'coach' %}
+                        <span class="badge" style="background: #4ecca3; color: #1a1a2e;">教练</span>
+                        {% else %}
+                        <span class="badge" style="background: #e2e3e5; color: #383d41;">用户</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.phone or '-' }}</td>
+                    <td>{{ user.created_at[:10] }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_reset_password_page', user_id=user.id) }}" class="btn btn-primary btn-sm">重置密码</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

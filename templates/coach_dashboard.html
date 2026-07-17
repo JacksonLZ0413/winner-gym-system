@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}教练后台 - 健身房私教预约{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 style="margin-bottom: 2rem;">👨‍🏫 教练后台 - {{ coach.name }}</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: #e94560;">{{ coach.rating }}</div>
+            <div style="color: #666;">教练评分</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: #4ecca3;">{{ coach.rating_count }}</div>
+            <div style="color: #666;">评价数量</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: #764ba2;">{{ coach.experience }}</div>
+            <div style="color: #666;">从业年限</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">📋 预约管理</h3>
+        
+        {% if bookings %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>学员</th>
+                    <th>电话</th>
+                    <th>课程</th>
+                    <th>日期</th>
+                    <th>时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.name }}</td>
+                    <td>{{ booking.phone or '-' }}</td>
+                    <td>{{ booking.course_name or '未指定' }}</td>
+                    <td>{{ booking.date }}</td>
+                    <td>{{ booking.time_slot }}</td>
+                    <td>
+                        <span class="badge badge-{{ booking.status }}">
+                            {% if booking.status == 'pending' %}待确认
+                            {% elif booking.status == 'confirmed' %}已确认
+                            {% elif booking.status == 'rejected' %}已拒绝
+                            {% elif booking.status == 'completed' %}已完成
+                            {% elif booking.status == 'cancelled' %}已取消
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('coach_respond') }}" style="display:inline;">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                            <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                            {% if booking.status == 'pending' %}
+                                <button type="submit" name="action" value="confirm" class="btn btn-success btn-sm">确认</button>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">拒绝</button>
+                            {% elif booking.status == 'confirmed' %}
+                                <button type="submit" name="action" value="complete" class="btn btn-primary btn-sm">标记完成</button>
+                            {% else %}
+                                <span style="color:#999;font-size:0.9rem;">-</span>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #666; text-align: center; padding: 2rem;">暂无预约</p>
+        {% endif %}
+    </div>
+    
+    <div class="card" style="margin-top: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">⭐ 学员评价</h3>
+        {% if reviews %}
+            {% for review in reviews %}
+            <div style="padding: 1rem 0; border-bottom: 1px solid #eee;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <strong>{{ review.name }}</strong>
+                    <span class="rating">
+                        {% for i in range(5) %}
+                            {% if i < review.rating|int %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+                <p style="color: #666; font-size: 0.9rem;">{{ review.review or '好评' }}</p>
+                <p style="color: #999; font-size: 0.8rem;">{{ review.created_at[:10] }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #666; text-align:center; padding:2rem;">暂无评价</p>
+        {% endif %}
+    </div>
+
+    <!-- 排班管理 -->
+    <div class="card" style="margin-top:1.5rem;">
+        <h3 style="margin-bottom:1rem;">📅 我的排班</h3>
+        <form method="POST" action="{{ url_for('coach_update_schedule') }}">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <p style="color:#999; font-size:0.9rem; margin-bottom:1rem;">
+                设置每周哪些时段可预约。每行表示一个时段。
+            </p>
+            <div id="scheduleList">
+                {% for s in schedule %}
+                <div class="schedule-row" style="display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center;">
+                    <select name="weekday" style="padding:0.5rem; border:1px solid #ddd; border-radius:8px;">
+                        {% for w,d in [(1,'周一'),(2,'周二'),(3,'周三'),(4,'周四'),(5,'周五'),(6,'周六'),(7,'周日')] %}
+                            <option value="{{w}}" {% if s.weekday==w %}selected{% endif %}>{{d}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="time" name="start_time" value="{{s.start_time}}" style="padding:0.5rem; border:1px solid #ddd; border-radius:8px;">
+                    <span>至</span>
+                    <input type="time" name="end_time" value="{{s.end_time}}" style="padding:0.5rem; border:1px solid #ddd; border-radius:8px;">
+                    <button type="button" onclick="this.parentElement.remove()" style="background:#f8d7da; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; color:#721c24; font-size:1rem;">✕</button>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" onclick="addScheduleRow()" class="btn btn-secondary btn-sm" style="margin:0.5rem 0;">+ 添加时段</button>
+            <button type="submit" class="btn btn-primary btn-sm" style="margin:0.5rem 0 0.5rem 0.5rem;">保存排班</button>
+        </form>
+    </div>
+
+    <div class="card" style="margin-top:1.5rem;">
+        <h3 style="margin-bottom:1rem;">🔒 修改密码</h3>
+        <a href="{{ url_for('change_password') }}" class="btn btn-outline">修改登录密码</a>
+    </div>
+</div>
+
+<script>
+function addScheduleRow() {
+    const div = document.createElement('div');
+    div.className = 'schedule-row';
+    div.style.cssText = 'display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center;';
+    div.innerHTML = `
+        <select name="weekday" style="padding:0.5rem; border:1px solid #ddd; border-radius:8px;">
+            <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+            <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option>
+        </select>
+        <input type="time" name="start_time" value="09:00" style="padding:0.5rem; border:1px solid #ddd; border-radius:8px;">
+        <span>至</span>
+        <input type="time" name="end_time" value="12:00" style="padding:0.5rem; border:1px solid #ddd; border-radius:8px;">
+        <button type="button" onclick="this.parentElement.remove()" style="background:#f8d7da; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; color:#721c24; font-size:1rem;">✕</button>
+    `;
+    document.getElementById('scheduleList').appendChild(div);
+}
+</script>
+{% endblock %}
+

@@ -1,0 +1,269 @@
+.header {
+  display: flex;
+  background: linear-gradient(135deg, #1989fa 0%, #007aff 100%);
+  padding: 48rpx 32rpx;
+  color: #fff;
+  border-radius: 0 0 32rpx 32rpx;
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-right: 24rpx;
+}
+
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.avatar-text {
+  font-size: 64rpx;
+  font-weight: bold;
+}
+
+.rating-badge {
+  position: absolute;
+  bottom: -8rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffc107;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.star {
+  font-size: 24rpx;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.name {
+  font-size: 44rpx;
+  font-weight: bold;
+  margin-bottom: 12rpx;
+}
+
+.specialty {
+  font-size: 28rpx;
+  opacity: 0.8;
+  margin-bottom: 12rpx;
+}
+
+.price {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.bio {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 24rpx;
+}
+
+.stats {
+  display: flex;
+  gap: 48rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #1989fa;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.courses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.course-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: #fafafa;
+  border-radius: 12rpx;
+}
+
+.course-radio {
+  width: 40rpx;
+  height: 40rpx;
+  border: 3rpx solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  transition: all 0.3s;
+}
+
+.course-radio.selected {
+  border-color: #1989fa;
+}
+
+.radio-inner {
+  width: 24rpx;
+  height: 24rpx;
+  background: #1989fa;
+  border-radius: 50%;
+}
+
+.course-info {
+  flex: 1;
+}
+
+.course-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.course-desc {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.course-price {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #f56c6c;
+}
+
+.date-scroll {
+  white-space: nowrap;
+}
+
+.date-list {
+  display: inline-flex;
+  gap: 16rpx;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: #fafafa;
+  border-radius: 12rpx;
+  min-width: 80rpx;
+  transition: all 0.3s;
+}
+
+.date-item.selected {
+  background: #1989fa;
+  color: #fff;
+}
+
+.date-day {
+  font-size: 24rpx;
+  margin-bottom: 8rpx;
+}
+
+.date-date {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.time-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.time-slot {
+  padding: 16rpx 28rpx;
+  background: #fafafa;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #333;
+  transition: all 0.3s;
+}
+
+.time-slot.selected {
+  background: #1989fa;
+  color: #fff;
+}
+
+.time-slot.disabled {
+  background: #eee;
+  color: #999;
+}
+
+.status {
+  font-size: 20rpx;
+  margin-left: 8rpx;
+}
+
+.note-input {
+  width: 100%;
+  height: 160rpx;
+  background: #fafafa;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.footer {
+  display: flex;
+  gap: 24rpx;
+  padding: 24rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.footer .btn-secondary,
+.footer .btn-primary {
+  flex: 1;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400rpx;
+  color: #999;
+}

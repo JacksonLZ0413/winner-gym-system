@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}会员管理 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>👥 会员管理</h2>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">返回</a>
+    </div>
+    
+    <div class="card">
+        {% if users %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>用户</th>
+                    <th>电话</th>
+                    <th>当前积分</th>
+                    <th>会员等级</th>
+                    <th>课程配额</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.name }} ({{ user.username }})</td>
+                    <td>{{ user.phone or '-' }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_update_points') }}" style="display: inline;">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <input type="number" name="points" value="{{ user.points }}" style="width: 80px; padding: 0.3rem; border-radius: 4px; border: 1px solid #ddd;">
+                            <button type="submit" class="btn btn-sm btn-primary" style="margin-left: 0.5rem;">更新</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_update_level') }}" style="display: inline;">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <select name="level_id" style="padding: 0.3rem; border-radius: 4px; border: 1px solid #ddd;">
+                                {% for level in levels %}
+                                <option value="{{ level.id }}" {% if user.level_id == level.id %}selected{% endif %}>{{ level.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary" style="margin-left: 0.5rem;">更新</button>
+                        </form>
+                    </td>
+                    <td>{{ user.course_quota }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_user_courses') }}" class="btn btn-sm btn-secondary">课程管理</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <p class="empty-state-title">暂无会员</p>
+            <p style="color:#999;">用户注册后会显示在这里</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="card" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">会员等级设置</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>等级名称</th>
+                    <th>积分范围</th>
+                    <th>折扣</th>
+                    <th>描述</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for level in levels %}
+                <tr>
+                    <td>{{ level.name }}</td>
+                    <td>{{ level.min_points }}-{% if level.max_points %}{{ level.max_points }}{% else %}∞{% endif %}</td>
+                    <td>{{ (level.discount * 100)|int }}%</td>
+                    <td>{{ level.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}教练管理 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>👨‍🏫 教练管理</h2>
+        <div style="display:flex; gap:0.75rem;">
+            <a href="{{ url_for('admin_add_coach_page') }}" class="btn btn-primary">+ 添加教练</a>
+            <a href="{{ url_for('admin') }}" class="btn btn-secondary">返回</a>
+        </div>
+    </div>
+
+    <div class="card">
+        {% if coaches %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>用户名</th>
+                    <th>擅长项目</th>
+                    <th>经验(年)</th>
+                    <th>评分</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coach in coaches %}
+                <tr>
+                    <td><strong>{{ coach.name }}</strong></td>
+                    <td>{{ coach.username }}</td>
+                    <td>
+                        {% for s in coach.specialty.split('|') %}
+                            <span style="display:inline-block;background:#f0f0f0;border-radius:20px;padding:2px 8px;margin:2px;font-size:0.8rem;">{{ s }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>{{ coach.experience }} 年</td>
+                    <td>
+                        <span class="rating">
+                            {% for i in range(5) %}{% if i < coach.rating|int %}★{% else %}☆{% endif %}{% endfor %}
+                        </span>
+                        {{ coach.rating }}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{{ url_for('admin_edit_coach_page', coach_id=coach.id) }}" class="btn btn-secondary btn-sm">修改</a>
+                            <form method="POST" action="{{ url_for('admin_delete_coach', coach_id=coach.id) }}" onsubmit="return confirm('确定删除教练 {{ coach.name }}？相关预约将被取消。')">
+                                <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                                <button type="submit" class="btn btn-danger btn-sm">删除</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">👨‍🏫</div>
+            <p class="empty-state-title">暂无教练</p>
+            <a href="{{ url_for('admin_add_coach_page') }}" class="btn btn-primary">添加第一位教练</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

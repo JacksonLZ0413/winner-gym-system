@@ -1,0 +1,51 @@
+<view class="container">
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索教练或课程" bindinput="onSearchInput" />
+    <view class="search-icon">🔍</view>
+  </view>
+
+  <view class="filter-bar">
+    <view class="filter-item {{currentFilter === 'all' ? 'active' : ''}}" bindtap="setFilter" data-filter="all">全部</view>
+    <view class="filter-item {{currentFilter === 'popular' ? 'active' : ''}}" bindtap="setFilter" data-filter="popular">热门</view>
+    <view class="filter-item {{currentFilter === 'new' ? 'active' : ''}}" bindtap="setFilter" data-filter="new">最新</view>
+  </view>
+
+  <view class="coach-list">
+    <view class="coach-card" wx:for="{{coaches}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="card-avatar">
+        <text class="avatar-text">{{item.name.charAt(0)}}</text>
+      </view>
+      <view class="card-content">
+        <view class="card-header">
+          <text class="coach-name">{{item.name}}</text>
+          <view class="rating">
+            <text class="star">★</text>
+            <text class="rating-value">{{item.rating}}</text>
+          </view>
+        </view>
+        <text class="specialty">{{item.specialty}}</text>
+        <text class="bio">{{item.bio}}</text>
+        <view class="card-footer">
+          <view class="experience">
+            <text class="exp-icon">💼</text>
+            <text>{{item.experience}}年经验</text>
+          </view>
+          <view class="price">
+            <text class="price-symbol">¥</text>
+            <text class="price-num">{{item.price}}</text>
+            <text class="price-unit">/课时</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && coaches.length === 0}}">
+    <text class="empty-icon">👨‍🏫</text>
+    <text class="empty-text">暂无教练</text>
+  </view>
+</view>

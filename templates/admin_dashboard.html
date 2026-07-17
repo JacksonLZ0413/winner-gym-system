@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>经营大屏 - 管理后台</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; }
+        .header { padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .header h1 { font-size: 1.5rem; }
+        .header .date { color: rgba(255,255,255,0.6); }
+        .menu { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+        .menu a { color: rgba(255,255,255,0.7); text-decoration: none; padding: 0.5rem 1rem; border-radius: 8px; background: rgba(255,255,255,0.1); font-size: 0.9rem; transition: background 0.3s; }
+        .menu a:hover { background: rgba(255,255,255,0.2); }
+        @media(max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .menu { width: 100%; justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📺 健身房经营大屏</h1>
+        <div>
+            <span class="date">{{ today }}</span>
+            <div class="menu">
+                <a href="/admin">← 返回管理</a>
+                <a href="/admin/stats/coaches">教练统计</a>
+                <a href="/admin/member_records">学员记录</a>
+                <a href="/admin/report/export">📥 导出月报</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- 今日关键指标 -->
+        <h2 style="margin-bottom: 1.5rem; color: rgba(255,255,255,0.8); font-size: 1.2rem;">📊 今日关键指标</h2>
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="icon">📅</div>
+                <div class="value">{{ today_stats.today_bookings }}</div>
+                <div class="label">今日预约</div>
+                <div class="sub-info">待确认 {{ today_stats.today_pending }} | 已完成 {{ today_stats.today_completed }}</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">👥</div>
+                <div class="value">{{ today_stats.today_active_members }}</div>
+                <div class="label">活跃会员</div>
+                <div class="sub-info">今日参与训练的会员</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">🏆</div>
+                <div class="value">{{ total_stats.total_members }}</div>
+                <div class="label">会员总数</div>
+                <div class="sub-info">累计注册会员</div>
+            </div>
+        </div>
+
+        <!-- 本月概览 -->
+        <h2 style="margin: 2rem 0 1.5rem; color: rgba(255,255,255,0.8); font-size: 1.2rem;">📈 本月概览</h2>
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="icon">📊</div>
+                <div class="value">{{ month_stats.total_bookings }}</div>
+                <div class="label">总预约数</div>
+                <div class="sub-info">完成率 {{ month_stats.completion_rate }}%</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">✅</div>
+                <div class="value">{{ month_stats.completed_bookings }}</div>
+                <div class="label">完成课程</div>
+                <div class="sub-info">本月已完成的课程</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">✨</div>
+                <div class="value">{{ month_stats.new_members }}</div>
+                <div class="label">新会员</div>
+                <div class="sub-info">本月新增会员</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">⭐</div>
+                <div class="value">{{ "%.1f"|format(month_stats.avg_rating) }}</div>
+                <div class="label">平均评分</div>
+                <div class="sub-info">学员对课程的评价</div>
+            </div>
+        </div>
+
+        <!-- 数据可视化 -->
+        <h2 style="margin: 2rem 0 1.5rem; color: rgba(255,255,255,0.8); font-size: 1.2rem;">📊 数据可视化</h2>
+        <div class="time-range-selector" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+            <button class="time-range-btn active" data-range="today">今日</button>
+            <button class="time-range-btn" data-range="week">本周</button>
+            <button class="time-range-btn" data-range="month">本月</button>
+        </div>
+        <div class="charts-grid">
+            <!-- 预约趋势图 -->
+            <div class="chart-card">
+                <h3>📅 <span id="trend-title">本周</span>预约趋势</h3>
+                <div class="chart-container">
+                    <canvas id="bookingTrendChart" data-data="{{ chart_data }}"></canvas>
+                </div>
+            </div>
+
+            <!-- 教练课时统计图 -->
+            <div class="chart-card">
+                <h3>🏆 教练课时统计</h3>
+                <div class="chart-container">
+                    <canvas id="coachPerformanceChart" data-data="{{ chart_data }}"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 实时监控 -->
+        <h2 style="margin: 2rem 0 1.5rem; color: rgba(255,255,255,0.8); font-size: 1.2rem;">🔍 实时监控</h2>
+        <div class="real-time-section">
+            <div class="real-time-grid">
+                <!-- 待确认预约 -->
+                <div class="status-card">
+                    <h4>⏳ 待确认预约</h4>
+                    {% if pending_bookings %}
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        {% for booking in pending_bookings %}
+                        <div class="status-item">
+                            <div class="status-label">{{ booking.user_name }}</div>
+                            <div class="status-value">
+                                <span class="status-badge status-pending">待确认</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">暂无待确认预约</p>
+                    {% endif %}
+                </div>
+                
+                <!-- 今日课程安排 -->
+                <div class="status-card">
+                    <h4>📅 今日课程安排</h4>
+                    {% if today_schedule %}
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        {% for booking in today_schedule %}
+                        <div class="status-item">
+                            <div class="status-label">{{ booking.time_slot }} - {{ booking.user_name }}</div>
+                            <div class="status-value">
+                                <span class="status-badge status-{{ booking.status }}">{{ booking.status }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">今日暂无课程安排</p>
+                    {% endif %}
+                </div>
+                
+                <!-- 教练课时统计 -->
+                <div class="status-card">
+                    <h4>🏆 教练课时统计</h4>
+                    {% if coach_ranking %}
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        {% for coach in coach_ranking[:5] %}
+                        <div class="status-item">
+                            <div class="status-label">{{ coach.coach_name }}</div>
+                            <div class="status-value">{{ coach.completed }} 课时</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">暂无教练数据</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 近期动态 -->
+        <h2 style="margin: 2rem 0 1.5rem; color: rgba(255,255,255,0.8); font-size: 1.2rem;">📋 近期动态</h2>
+        <div class="chart-card">
+            {% if recent %}
+            <div style="max-height: 400px; overflow-y: auto;">
+                {% for r in recent[:20] %}
+                <div class="status-item">
+                    <div class="status-label">
+                        {{ r.user_name }} 预约了 {{ r.coach_name }}
+                        <span class="status-badge status-{{ r.status }}">{{ r.status }}</span>
+                        {% if r.status == 'completed' and r.rating %}
+                            <span class="status-badge" style="background:rgba(255,193,7,0.2);color:#ffc107;">★{{ r.rating }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="status-value">{{ r.date }} {{ r.time_slot }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 2rem;">暂无动态</p>
+            {% endif %}
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="menu" style="margin-top: 2rem; justify-content: center;">
+            <a href="/admin/report/export">📥 导出本月报告 CSV</a>
+            <a href="/admin/stats/coaches">📊 教练课时统计</a>
+            <a href="/admin/member_records">👥 学员上课记录</a>
+            <a href="/admin/users">👤 用户管理</a>
+            <a href="/admin/coaches">👨‍🏫 教练管理</a>
+        </div>
+    </div>
+
+    <!-- 图表配置 -->
+    <script src="{{ url_for('static', filename='js/chart-config.js') }}"></script>
+</body>
+</html>

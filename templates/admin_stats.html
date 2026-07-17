@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}数据统计 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>📊 数据统计</h2>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">返回</a>
+    </div>
+    
+    <!-- 基本统计卡片 -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; font-weight: bold; color: #667eea;">{{ stats.total_users }}</div>
+            <div style="color: #666; margin-top: 0.5rem;">会员数量</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; font-weight: bold; color: #4ecca3;">{{ stats.total_coaches }}</div>
+            <div style="color: #666; margin-top: 0.5rem;">教练数量</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; font-weight: bold; color: #e94560;">{{ stats.total_bookings }}</div>
+            <div style="color: #666; margin-top: 0.5rem;">总预约数</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; font-weight: bold; color: #ffc107;">{{ stats.completed_bookings }}</div>
+            <div style="color: #666; margin-top: 0.5rem;">已完成</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; font-weight: bold; color: #16213e;">{{ "%.1f"|format(stats.avg_rating) }}</div>
+            <div style="color: #666; margin-top: 0.5rem;">平均评分</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; font-weight: bold; color: #1a1a2e;">{{ stats.total_reviews }}</div>
+            <div style="color: #666; margin-top: 0.5rem;">评价数</div>
+        </div>
+    </div>
+    
+    <!-- 导出功能 -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem;">📤 导出报表</h3>
+        <form method="POST" action="{{ url_for('export_stats') }}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <button type="submit" name="export_type" value="bookings" class="btn btn-primary">导出预约统计</button>
+            <button type="submit" name="export_type" value="coaches" class="btn btn-secondary">导出教练统计</button>
+            <button type="submit" name="export_type" value="users" class="btn btn-secondary">导出用户统计</button>
+        </form>
+    </div>
+    
+    <!-- 预约趋势 -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1.5rem;">📈 近30天预约趋势</h3>
+        <div style="height: 300px; position: relative;">
+            <canvas id="bookingTrendChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- 教练统计 -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem;">👨‍🏫 教练预约统计</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>教练</th>
+                    <th>预约次数</th>
+                    <th>平均评分</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coach in coach_stats %}
+                <tr>
+                    <td>{{ coach[1] }}</td>
+                    <td>{{ coach[3] }}</td>
+                    <td>{{ "%.1f"|format(coach[4] or 0) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 课程类型统计 -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem;">🏋️ 课程类型统计</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>课程名称</th>
+                    <th>预约次数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in course_stats %}
+                <tr>
+                    <td>{{ course[0] }}</td>
+                    <td>{{ course[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 会员等级统计 -->
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">🏆 会员等级统计</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>会员等级</th>
+                    <th>会员数量</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for level in level_stats %}
+                <tr>
+                    <td>{{ level[0] }}</td>
+                    <td>{{ level[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 预约趋势图表
+    const ctx = document.getElementById('bookingTrendChart').getContext('2d');
+    const bookingData = {{ booking_trend|tojson }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: bookingData.map(item => item.date),
+            datasets: [{
+                label: '预约次数',
+                data: bookingData.map(item => item.count),
+                borderColor: '#e94560',
+                backgroundColor: 'rgba(233, 69, 96, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

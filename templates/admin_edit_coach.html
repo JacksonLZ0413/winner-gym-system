@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}修改教练信息 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>👨‍🏫 修改教练信息</h2>
+        <a href="{{ url_for('admin_coaches') }}" class="btn btn-secondary">返回</a>
+    </div>
+
+    <div class="card">
+        <form method="POST" action="{{ url_for('admin_edit_coach') }}">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <input type="hidden" name="coach_id" value="{{ coach.id }}">
+            <input type="hidden" name="user_id" value="{{ coach.user_id }}">
+            <div class="form-group">
+                <label>姓名 <span style="color:red">*</span></label>
+                <input type="text" name="name" required placeholder="如：陈教练" value="{{ coach.name }}">
+            </div>
+            <div class="form-group">
+                <label>登录用户名 <span style="color:red">*</span></label>
+                <input type="text" name="username" required placeholder="用于教练登录" value="{{ coach.username }}">
+            </div>
+            <div class="form-group">
+                <label>登录密码</label>
+                <input type="password" name="password" placeholder="留空则不修改密码">
+            </div>
+            <div class="form-group">
+                <label>擅长项目</label>
+                <input type="text" name="specialty" placeholder="如：增肌减脂|体态矫正（用|分隔）" value="{{ coach.specialty }}">
+            </div>
+            <div class="form-group">
+                <label>从业年限</label>
+                <input type="number" name="experience" min="0" max="50" value="{{ coach.experience }}">
+            </div>
+            <div class="form-group">
+                <label>个人简介</label>
+                <textarea name="bio" rows="3" placeholder="教练简介...">{{ coach.bio }}</textarea>
+            </div>
+            <div style="display:flex; gap:1rem;">
+                <button type="submit" class="btn btn-primary" style="flex:1;">保存修改</button>
+                <a href="{{ url_for('admin_coaches') }}" class="btn btn-secondary" style="flex:1; text-align:center;">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

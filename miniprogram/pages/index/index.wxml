@@ -1,0 +1,83 @@
+<view class="container">
+  <view class="banner">
+    <view class="banner-content">
+      <text class="banner-title">健身房预约系统</text>
+      <text class="banner-subtitle">专业教练，优质课程，随时预约</text>
+    </view>
+  </view>
+
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToCoaches">
+      <view class="action-icon">👨‍🏫</view>
+      <text class="action-text">预约教练</text>
+    </view>
+    <view class="action-item" bindtap="goToBookings">
+      <view class="action-icon">📅</view>
+      <text class="action-text">我的预约</text>
+    </view>
+    <view class="action-item" bindtap="goToCourses">
+      <view class="action-icon">📚</view>
+      <text class="action-text">课程列表</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-header">
+      <text class="card-title">热门教练</text>
+      <text class="card-more" bindtap="goToCoaches">查看全部 →</text>
+    </view>
+    <view class="coach-list">
+      <view class="coach-item" wx:for="{{hotCoaches}}" wx:key="id" bindtap="goToCoachDetail" data-id="{{item.id}}">
+        <view class="coach-avatar">
+          <text class="avatar-text">{{item.name.charAt(0)}}</text>
+        </view>
+        <view class="coach-info">
+          <text class="coach-name">{{item.name}}</text>
+          <text class="coach-specialty">{{item.specialty}}</text>
+          <view class="coach-rating">
+            <text class="star">★</text>
+            <text>{{item.rating}}</text>
+            <text class="rating-count">({{item.rating_count}})</text>
+          </view>
+        </view>
+        <view class="coach-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-value">{{item.price}}</text>
+          <text class="price-unit">/课时</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-header">
+      <text class="card-title">课程分类</text>
+    </view>
+    <view class="course-grid">
+      <view class="course-item" wx:for="{{courseCategories}}" wx:key="name">
+        <view class="course-icon">{{item.icon}}</view>
+        <text class="course-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-header">
+      <text class="card-title">温馨提示</text>
+    </view>
+    <view class="tips">
+      <view class="tip-item">
+        <text class="tip-icon">1️⃣</text>
+        <text class="tip-text">提前预约，避免满课</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">2️⃣</text>
+        <text class="tip-text">按时到达，尊重教练时间</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">3️⃣</text>
+        <text class="tip-text">取消预约请提前2小时</text>
+      </view>
+    </view>
+  </view>
+</view>

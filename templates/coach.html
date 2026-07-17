@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}{{ coach.name }} - 教练详情{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 教练信息 -->
+    <div class="card">
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div style="width: 180px; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 5rem; flex-shrink: 0;">
+                {{ coach.name[0] }}
+            </div>
+            <div style="flex: 1; min-width: 260px;">
+                <h2 style="margin-bottom: 0.5rem;">{{ coach.name }}</h2>
+                <div class="rating" style="margin-bottom: 0.75rem;">
+                    {% for i in range(5) %}
+                        {% if i < coach.rating|int %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                    <span style="color: #666;">{{ coach.rating }} ({{ coach.rating_count }}条评价)</span>
+                </div>
+                <p style="color: #666; margin-bottom: 0.5rem;">📍 从业经验：{{ coach.experience }}年</p>
+                <p style="margin-bottom: 0.75rem;">🏷️ 擅长：
+                    {% for s in coach.specialty.split('|') %}
+                        <span style="display:inline-block; background:#f0f0f0; border-radius:20px; padding:2px 10px; margin:2px; font-size:0.9rem;">{{ s }}</span>
+                    {% endfor %}
+                </p>
+                <p style="color: #555; line-height: 1.7;">{{ coach.bio }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 0;">
+
+        <!-- 预约表单 -->
+        <div class="card">
+            <h3 style="margin-bottom: 1.2rem;">📅 预约课程</h3>
+            <form method="POST" action="{{ url_for('book') }}" id="bookForm">
+                <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                <input type="hidden" name="coach_id" value="{{ coach.id }}">
+                <input type="hidden" name="time_slot" id="selectedTime">
+
+                <div class="form-group">
+                    <label>选择课程</label>
+                    <select name="course_id" required>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.name }} ({{ course.duration }}分钟)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>选择日期</label>
+                    <select name="date" id="dateSelect" required onchange="renderSlots()">
+                        {% for d in week_dates %}
+                        <option value="{{ d }}">{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>选择时间段</label>
+                    <div id="slotsContainer" style="display:flex; flex-wrap:wrap; gap:8px; min-height:40px;">
+                        <span style="color:#999;">请先选择日期</span>
+                    </div>
+                    <p id="slotHint" style="color:#dc3545; font-size:0.85rem; margin-top:6px; display:none;">请选择一个时间段</p>
+                </div>
+
+                <div class="form-group">
+                    <label>备注（选填）</label>
+                    <textarea name="note" rows="3" placeholder="如：想针对减脂训练"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;" onclick="return checkSlot()">立即预约</button>
+            </form>
+        </div>
+
+        <!-- 学员评价 -->
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">⭐ 学员评价</h3>
+            {% if reviews %}
+                {% for review in reviews %}
+                <div style="padding: 0.8rem 0; border-bottom: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                        <strong>{{ review.name }}</strong>
+                        <span class="rating">
+                            {% for i in range(5) %}
+                                {% if i < review.rating|int %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    {% if review.review_tags %}
+                    <div style="margin-bottom: 0.5rem;">
+                        {% for tag in review.review_tags.split(',') %}
+                        <span style="display:inline-block; background:#f0f0f0; border-radius:20px; padding:2px 10px; margin:2px; font-size:0.8rem;">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <p style="color: #666; font-size: 0.9rem;">{{ review.review or '好评' }}</p>
+                    <p style="color: #999; font-size: 0.8rem;">{{ review.created_at[:10] }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #999; text-align:center; padding: 2rem 0;">暂无评价</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// 从后端传入的已预约时间段数据
+const allSlots = {{ all_time_slots | tojson }};
+
+function renderSlots() {
+    const date = document.getElementById('dateSelect').value;
+    const container = document.getElementById('slotsContainer');
+    const hiddenInput = document.getElementById('selectedTime');
+    hiddenInput.value = '';
+
+    const daySlots = allSlots.filter(s => s.date === date);
+    container.innerHTML = '';
+
+    if (daySlots.length === 0) {
+        container.innerHTML = '<span style="color:#999;">当天暂无可预约时段</span>';
+        return;
+    }
+
+    daySlots.forEach(function(slot) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = slot.time;
+        btn.style.cssText = 'padding:8px 14px; border-radius:8px; border:2px solid #ddd; background:white; cursor:pointer; font-size:0.95rem; transition:all 0.2s;';
+
+        if (slot.booked) {
+            btn.disabled = true;
+            btn.style.background = '#f5f5f5';
+            btn.style.color = '#bbb';
+            btn.style.cursor = 'not-allowed';
+            btn.title = '已被预约';
+        } else {
+            btn.addEventListener('click', function() {
+                // 取消其他选中
+                container.querySelectorAll('button').forEach(b => {
+                    b.style.background = 'white';
+                    b.style.borderColor = '#ddd';
+                    b.style.color = '#333';
+                });
+                // 选中当前
+                btn.style.background = '#e94560';
+                btn.style.borderColor = '#e94560';
+                btn.style.color = 'white';
+                hiddenInput.value = slot.time;
+                document.getElementById('slotHint').style.display = 'none';
+            });
+        }
+        container.appendChild(btn);
+    });
+}
+
+function checkSlot() {
+    const val = document.getElementById('selectedTime').value;
+    if (!val) {
+        document.getElementById('slotHint').style.display = 'block';
+        return false;
+    }
+    return true;
+}
+
+// 页面加载时渲染第一天的时间段
+renderSlots();
+</script>
+{% endblock %}
+{% endblock %}

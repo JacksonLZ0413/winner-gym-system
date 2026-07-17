@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}反馈管理 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>📋 反馈管理</h2>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">返回</a>
+    </div>
+    
+    <div class="card">
+        {% if feedbacks %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>提交人</th>
+                    <th>主题</th>
+                    <th>内容</th>
+                    <th>状态</th>
+                    <th>提交时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feedback in feedbacks %}
+                <tr>
+                    <td>{{ feedback.name }}{% if feedback.user_name %} ({{ feedback.user_name }}){% endif %}</td>
+                    <td>{{ feedback.subject }}</td>
+                    <td>{{ feedback.content[:50] }}{% if feedback.content|length > 50 %}...{% endif %}</td>
+                    <td>
+                        <span class="badge badge-{{ feedback.status }}">
+                            {% if feedback.status == 'pending' %}待处理
+                            {% elif feedback.status == 'processing' %}处理中
+                            {% elif feedback.status == 'completed' %}已完成
+                            {% elif feedback.status == 'rejected' %}已拒绝
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>{{ feedback.created_at[:10] }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_update_feedback_status') }}" style="display:inline;">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                            <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+                            <select name="status" onchange="this.form.submit()" style="padding: 0.5rem; border-radius: 8px; border: 1px solid #ddd;">
+                                <option value="pending" {% if feedback.status == 'pending' %}selected{% endif %}>待处理</option>
+                                <option value="processing" {% if feedback.status == 'processing' %}selected{% endif %}>处理中</option>
+                                <option value="completed" {% if feedback.status == 'completed' %}selected{% endif %}>已完成</option>
+                                <option value="rejected" {% if feedback.status == 'rejected' %}selected{% endif %}>已拒绝</option>
+                            </select>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <p class="empty-state-title">暂无反馈</p>
+            <p style="color:#999;">用户提交反馈后会显示在这里</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

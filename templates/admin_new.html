@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 健身房私教预约</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; }
+        .navbar { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .navbar a { color: white; text-decoration: none; margin-left: 1.5rem; }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        h2 { margin-bottom: 1.5rem; color: #1a1a2e; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-box { background: white; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .stat-box .val { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.3rem; }
+        .stat-box .lbl { color: #666; font-size: 0.95rem; }
+        .menu { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .btn { display: inline-block; padding: 0.7rem 1.4rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: transform 0.2s, box-shadow 0.2s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: #e9ecef; color: #495057; }
+        .btn-success { background: linear-gradient(135deg, #4ecca3 0%, #3db892 100%); color: white; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <span style="font-size: 1.3rem; font-weight: bold;">⚙️ 管理后台</span>
+        <div>
+            <span>欢迎, {{ session.name }}</span>
+            <a href="/">🏠 首页</a>
+            <a href="/logout">🚪 退出</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>📊 系统概览</h2>
+
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="val" style="color: #667eea;">{{ stats.total_users }}</div>
+                <div class="lbl">👥 用户数量</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" style="color: #4ecca3;">{{ stats.total_coaches }}</div>
+                <div class="lbl">👨‍🏫 教练数量</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" style="color: #e94560;">{{ stats.total_bookings }}</div>
+                <div class="lbl">📅 总预约数</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" style="color: #ffc107;">{{ stats.pending_bookings }}</div>
+                <div class="lbl">⏳ 待处理</div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <a href="/admin/dashboard" class="btn btn-primary">📺 经营大屏</a>
+            <a href="/admin/stats/coaches" class="btn btn-primary">📊 教练课时统计</a>
+            <a href="/admin/member_records" class="btn btn-primary">👥 学员上课记录</a>
+            <a href="/admin/users/courses" class="btn btn-success">📚 会员课程管理</a>
+            <a href="/admin/coaches" class="btn btn-secondary">👨‍🏫 教练管理</a>
+            <a href="/admin/users" class="btn btn-secondary">📋 用户列表</a>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">📋 最近预约</h3>
+            {% if recent_bookings %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #dee2e6;">学员</th>
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #dee2e6;">教练</th>
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #dee2e6;">日期</th>
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #dee2e6;">时间</th>
+                        <th style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #dee2e6;">状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in recent_bookings %}
+                    <tr>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">{{ b.user_name }}</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">{{ b.coach_name }}</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">{{ b.date }}</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">{{ b.time_slot }}</td>
+                        <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">
+                            <span style="padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;
+                                {% if b.status == 'completed' %}background: #d4edda; color: #155724;
+                                {% elif b.status == 'confirmed' %}background: #cce5ff; color: #004085;
+                                {% elif b.status == 'pending' %}background: #fff3cd; color: #856404;
+                                {% else %}background: #f8d7da; color: #721c24;{% endif %}">
+                                {{ b.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #666; text-align: center; padding: 2rem;">暂无预约记录</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

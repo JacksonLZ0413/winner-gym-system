@@ -1,0 +1,59 @@
+.container {
+  min-height: 100vh;
+  padding: 80rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.input {
+  width: 100%;
+  height: 90rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 10rpx;
+  padding: 0 30rpx;
+  font-size: 30rpx;
+  box-sizing: border-box;
+}
+
+.btn-register {
+  width: 100%;
+  height: 90rpx;
+  background: #1989fa;
+  color: white;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+  margin-top: 40rpx;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 60rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.link {
+  color: #1989fa;
+  margin-left: 10rpx;
+}

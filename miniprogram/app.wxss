@@ -1,0 +1,120 @@
+page {
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.container {
+  padding: 20rpx;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1989fa 0%, #007aff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 40rpx;
+  padding: 24rpx;
+  font-size: 32rpx;
+  text-align: center;
+}
+
+.btn-secondary {
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 40rpx;
+  padding: 24rpx;
+  font-size: 32rpx;
+  text-align: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: #999;
+}
+
+.text-primary {
+  color: #1989fa;
+}
+
+.text-success {
+  color: #67c23a;
+}
+
+.text-warning {
+  color: #e6a23c;
+}
+
+.text-danger {
+  color: #f56c6c;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.gap-10 {
+  gap: 10rpx;
+}
+
+.gap-20 {
+  gap: 20rpx;
+}
+
+.mt-20 {
+  margin-top: 20rpx;
+}
+
+.mb-20 {
+  margin-bottom: 20rpx;
+}
+
+.fs-28 {
+  font-size: 28rpx;
+}
+
+.fs-32 {
+  font-size: 32rpx;
+}
+
+.fs-36 {
+  font-size: 36rpx;
+}
+
+.fs-40 {
+  font-size: 40rpx;
+}
+
+.fw-bold {
+  font-weight: bold;
+}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}我的预约 - 健身房私教预约{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 style="margin-bottom: 2rem;">📋 我的预约</h2>
+    
+    {% if bookings %}
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>教练</th>
+                    <th>课程</th>
+                    <th>日期</th>
+                    <th>时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.coach_name }}</td>
+                    <td>{{ booking.course_name or '未指定' }}</td>
+                    <td>{{ booking.date }}</td>
+                    <td>{{ booking.time_slot }}</td>
+                    <td>
+                        <span class="badge badge-{{ booking.status }}">
+                            {% if booking.status == 'pending' %}待确认
+                            {% elif booking.status == 'confirmed' %}已确认
+                            {% elif booking.status == 'rejected' %}已拒绝
+                            {% elif booking.status == 'completed' %}已完成
+                            {% elif booking.status == 'cancelled' %}已取消
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                            <a href="{{ url_for('cancel_booking', booking_id=booking.id) }}" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('确定要取消预约吗？')">取消</a>
+                        {% elif booking.status == 'completed' and not booking.rating %}
+                            <button class="btn btn-success" onclick="showRateForm({{ booking.id }})">评价</button>
+                        {% elif booking.rating %}
+                            <span class="rating">
+                                {% for i in range(5) %}
+                                    {% if i < booking.rating|int %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 评价弹窗 -->
+    <div id="rateModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 1rem;">评价课程</h3>
+            <form method="POST" action="{{ url_for('rate_booking') }}">
+                <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                <input type="hidden" name="booking_id" id="rateBookingId">
+                <div class="form-group">
+                    <label>评分</label>
+                    <select name="rating" required>
+                        <option value="5">★★★★★ 5分</option>
+                        <option value="4">★★★★☆ 4分</option>
+                        <option value="3">★★★☆☆ 3分</option>
+                        <option value="2">★★☆☆☆ 2分</option>
+                        <option value="1">★☆☆☆☆ 1分</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>评价标签（可多选）</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                        {% for tag in ['专业', '耐心', '负责', '幽默', '有针对性', '环境好', '器材齐全', '服务周到'] %}
+                        <label style="display: inline-block; padding: 0.5rem 1rem; border: 2px solid #e8e8e8; border-radius: 20px; cursor: pointer; transition: all 0.3s;">
+                            <input type="checkbox" name="review_tags" value="{{ tag }}" style="display: none;">
+                            <span>{{ tag }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>评价内容</label>
+                    <textarea name="review" rows="4" placeholder="分享你的课程体验..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>上传图片（选填）</label>
+                    <input type="file" name="review_images" multiple accept="image/*">
+                    <p style="color: #999; font-size: 0.85rem; margin-top: 0.5rem;">最多上传3张图片</p>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">提交评价</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('rateModal').style.display='none'">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: #666; margin-bottom: 1rem;">暂无预约记录</p>
+        <a href="{{ url_for('coaches') }}" class="btn btn-primary">浏览教练</a>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+function showRateForm(bookingId) {
+    document.getElementById('rateBookingId').value = bookingId;
+    document.getElementById('rateModal').style.display = 'block';
+}
+</script>
+{% endblock %}
+{% endblock %}

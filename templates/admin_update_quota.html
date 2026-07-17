@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}调整课程配额 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>📚 调整课程配额</h2>
+        <a href="{{ url_for('admin_user_courses') }}" class="btn btn-secondary">返回</a>
+    </div>
+
+    <div class="card">
+        <p style="margin-bottom: 1.5rem;">为用户 <strong>{{ user.name }}</strong> ({{ user.username }}) 调整课程配额</p>
+        <form method="POST" action="{{ url_for('admin_update_course_quota') }}">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <div class="form-group">
+                <label>课程总额度</label>
+                <input type="number" name="quota" min="0" max="999" required value="{{ user.course_quota or 0 }}">
+                <p style="color:#999; font-size:0.85rem; margin-top:0.5rem;">
+                    设置该会员可预约的课程总数
+                </p>
+            </div>
+            <div style="display:flex; gap:1rem;">
+                <button type="submit" class="btn btn-primary" style="flex:1;">确认修改</button>
+                <a href="{{ url_for('admin_user_courses') }}" class="btn btn-secondary" style="flex:1; text-align:center;">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}管理后台 - 健身房私教预约{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 style="margin-bottom: 2rem;">⚙️ 管理后台</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: #667eea;">{{ stats.total_users }}</div>
+            <div style="color: #666;">用户数量</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: #4ecca3;">{{ stats.total_coaches }}</div>
+            <div style="color: #666;">教练数量</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: #e94560;">{{ stats.total_bookings }}</div>
+            <div style="color: #666;">总预约数</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold; color: #ffc107;">{{ stats.pending_bookings }}</div>
+            <div style="color: #666;">待处理</div>
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-info">📊 经营大屏</a>
+        <a href="{{ url_for('admin_user_courses') }}" class="btn btn-primary">📚 会员课程管理</a>
+        <a href="{{ url_for('admin_coaches') }}" class="btn btn-secondary">👨‍🏫 教练管理</a>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">👥 用户列表</a>
+        <a href="{{ url_for('admin_feedback') }}" class="btn btn-secondary">📝 反馈管理</a>
+        <a href="{{ url_for('admin_stats') }}" class="btn btn-secondary">📊 数据统计</a>
+    </div>
+    
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">📋 最近预约</h3>
+        
+        {% if recent_bookings %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>用户</th>
+                    <th>教练</th>
+                    <th>日期</th>
+                    <th>时间</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                    <td>{{ booking.user_name }}</td>
+                    <td>{{ booking.coach_name }}</td>
+                    <td>{{ booking.date }}</td>
+                    <td>{{ booking.time_slot }}</td>
+                    <td>
+                        <span class="badge badge-{{ booking.status }}">
+                            {% if booking.status == 'pending' %}待确认
+                            {% elif booking.status == 'confirmed' %}已确认
+                            {% elif booking.status == 'rejected' %}已拒绝
+                            {% elif booking.status == 'completed' %}已完成
+                            {% elif booking.status == 'cancelled' %}已取消
+                            {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #666; text-align: center; padding: 2rem;">暂无预约记录</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}会员课程管理 - 管理后台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>📚 会员课程数量管理</h2>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">返回</a>
+    </div>
+
+    <div class="card">
+        <div class="search-bar" style="margin-bottom: 1rem;">
+            <form method="GET" action="{{ url_for('admin_user_courses') }}">
+                <input type="text" name="keyword" placeholder="通过手机尾号或姓名查找会员..." value="{{ keyword or '' }}" style="padding: 0.6rem 1rem; border: 2px solid #e8e8e8; border-radius: 8px; width: 300px; font-size: 1rem;">
+                <button type="submit" class="btn btn-primary" style="margin-left: 0.5rem;">搜索</button>
+                {% if keyword %}
+                <a href="{{ url_for('admin_user_courses') }}" class="btn btn-secondary" style="margin-left: 0.5rem;">重置</a>
+                {% endif %}
+            </form>
+        </div>
+        {% if users %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>用户名</th>
+                    <th>电话</th>
+                    <th>已用课程</th>
+                    <th>剩余课程</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td><strong>{{ user.name }}</strong></td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.phone or '-' }}</td>
+                    <td>{{ user.used }}</td>
+                    <td>
+                        <span style="font-size:1.1rem; font-weight:bold; color:{% if user.course_quota > user.used %}#4ecca3{% else %}#dc3545{% endif %}">
+                            {{ user.course_quota - user.used }}
+                        </span>
+                        / {{ user.course_quota }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin_update_course_quota_page', user_id=user.id) }}" class="btn btn-primary btn-sm">调整额度</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <p class="empty-state-title">暂无会员</p>
+            <p style="color:#999;">用户注册后会显示在这里</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+<view class="container">
+  <view class="filter-bar">
+    <view class="filter-item {{currentFilter === 'all' ? 'active' : ''}}" bindtap="setFilter" data-filter="all">全部</view>
+    <view class="filter-item {{currentFilter === 'pending' ? 'active' : ''}}" bindtap="setFilter" data-filter="pending">待确认</view>
+    <view class="filter-item {{currentFilter === 'confirmed' ? 'active' : ''}}" bindtap="setFilter" data-filter="confirmed">已确认</view>
+    <view class="filter-item {{currentFilter === 'completed' ? 'active' : ''}}" bindtap="setFilter" data-filter="completed">已完成</view>
+  </view>
+
+  <view class="booking-list">
+    <view class="booking-card" wx:for="{{filteredBookings}}" wx:key="id">
+      <view class="card-header">
+        <view class="coach-info">
+          <view class="coach-avatar">
+            <text>{{item.coach_name.charAt(0)}}</text>
+          </view>
+          <view class="coach-detail">
+            <text class="coach-name">{{item.coach_name}}</text>
+            <text class="course-name">{{item.course_name}}</text>
+          </view>
+        </view>
+        <view class="status-badge {{item.status === 'pending' ? 'warning' : item.status === 'confirmed' || item.status === 'completed' ? 'success' : 'danger'}}">{{item.status === 'pending' ? '待确认' : item.status === 'confirmed' ? '已确认' : item.status === 'completed' ? '已完成' : item.status === 'cancelled' ? '已取消' : '已拒绝'}}</view>
+      </view>
+
+      <view class="card-body">
+        <view class="info-row">
+          <text class="info-icon">📅</text>
+          <text class="info-text">{{item.date}} {{item.time_slot}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.note}}">
+          <text class="info-icon">📝</text>
+          <text class="info-text">{{item.note}}</text>
+        </view>
+      </view>
+
+      <view class="card-footer">
+        <view class="price">¥{{item.price || '0'}}</view>
+        <view class="actions">
+          <view class="action-btn cancel" wx:if="{{item.status === 'pending'}}" bindtap="cancelBooking" data-id="{{item.id}}">取消预约</view>
+          <view class="action-btn rate" wx:if="{{item.status === 'completed' && !item.rating}}" bindtap="showRateModal" data-id="{{item.id}}">去评价</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{filteredBookings.length === 0}}">
+    <text class="empty-icon">📅</text>
+    <text class="empty-text">暂无预约</text>
+  </view>
+
+  <view class="modal" wx:if="{{showRate}}" bindtap="hideRateModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <text class="modal-title">评价课程</text>
+      <view class="rating-section">
+        <text class="rating-label">评分</text>
+        <view class="stars">
+          <text class="star {{i < rating ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="*this" bindtap="setRating" data-rating="{{item}}">★</text>
+        </view>
+      </view>
+      <view class="review-section">
+        <text class="review-label">评价内容</text>
+        <textarea class="review-input" placeholder="请输入评价内容" value="{{review}}" bindinput="onReviewInput" />
+      </view>
+      <view class="modal-actions">
+        <view class="btn-secondary" bindtap="hideRateModal">取消</view>
+        <view class="btn-primary" bindtap="submitRate">提交评价</view>
+      </view>
+    </view>
+  </view>
+</view>

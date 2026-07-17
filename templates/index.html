@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - Winner Train 韦能健身{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-badge">🏆 专业私教团队</div>
+        <h1 class="hero-title">Winner Train<br><span>韦能健身</span></h1>
+        <p class="hero-subtitle">专业教练团队，一对一指导<br>帮你达成健身目标，成就更好的自己</p>
+        <div class="hero-actions">
+            {% if not session.get('user_id') %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">立即开始</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">登录</a>
+            {% else %}
+                <a href="{{ url_for('coaches') }}" class="btn btn-primary btn-lg">浏览教练</a>
+                <a href="{{ url_for('my_bookings') }}" class="btn btn-outline btn-lg">我的预约</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-value">500+</span>
+                <span class="hero-stat-label">训练课时</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value">98%</span>
+                <span class="hero-stat-label">满意度</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value">10+</span>
+                <span class="hero-stat-label">专业教练</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">为什么选择 Winner Train</h2>
+            <p class="section-subtitle">专业、高效、贴心的私教服务</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">👨‍🏫</div>
+                <h3>专业教练团队</h3>
+                <p>资深认证教练，一对一专业指导，根据你的身体状况和目标制定个性化训练方案</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h3>灵活预约</h3>
+                <p>在线实时预约，随时查看可预约时间段，灵活安排你的训练计划</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h3>真实评价</h3>
+                <p>学员真实评价分享，透明了解教练教学风格，选择最适合你的教练</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>进度追踪</h3>
+                <p>记录每次训练内容，追踪你的健身进度，见证每一次突破</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">如何使用</h2>
+            <p class="section-subtitle">简单四步，开始你的健身之旅</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">01</div>
+                <h4>注册账号</h4>
+                <p>快速注册，开启你的健身之旅</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">02</div>
+                <h4>选择教练</h4>
+                <p>浏览教练介绍，查看评价和擅长领域</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">03</div>
+                <h4>预约课程</h4>
+                <p>选择合适的时间，在线提交预约</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">04</div>
+                <h4>开始训练</h4>
+                <p>完成课程后评价，持续进步</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-card">
+            <h2>准备好开始了吗？</h2>
+            <p>加入 Winner Train，与专业教练一起达成你的健身目标</p>
+            {% if not session.get('user_id') %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">立即注册</a>
+            {% else %}
+                <a href="{{ url_for('coaches') }}" class="btn btn-primary btn-lg">浏览教练</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if not session.get('user_id') %}
+<section class="demo-accounts">
+    <div class="container">
+        <div class="demo-card">
+            <h3>体验账号</h3>
+            <p class="demo-note">你可以使用以下账号体验不同角色：</p>
+            <div class="demo-table-wrapper">
+                <table class="demo-table">
+                    <thead>
+                        <tr>
+                            <th>角色</th>
+                            <th>用户名</th>
+                            <th>密码</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="role-badge role-admin">管理员</span></td>
+                            <td><code>admin</code></td>
+                            <td><code>admin123</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge role-coach">教练</span></td>
+                            <td><code>coach1</code></td>
+                            <td><code>coach123</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge role-user">用户</span></td>
+                            <td><code>user1</code></td>
+                            <td><code>user123</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

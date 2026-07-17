@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}用户反馈 - 健身房私教预约{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 style="margin-bottom: 2rem;">📝 用户反馈</h2>
+    
+    <div class="card">
+        <form method="POST" action="{{ url_for('feedback') }}">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            
+            <div class="form-group">
+                <label>姓名</label>
+                <input type="text" name="name" value="{{ session.get('name') or '' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>邮箱（选填）</label>
+                <input type="email" name="email" placeholder="请输入您的邮箱">
+            </div>
+            
+            <div class="form-group">
+                <label>电话（选填）</label>
+                <input type="tel" name="phone" placeholder="请输入您的电话">
+            </div>
+            
+            <div class="form-group">
+                <label>主题</label>
+                <select name="subject" required>
+                    <option value="">请选择反馈主题</option>
+                    <option value="功能建议">功能建议</option>
+                    <option value="bug反馈">bug反馈</option>
+                    <option value="服务投诉">服务投诉</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>反馈内容</label>
+                <textarea name="content" rows="6" placeholder="请详细描述您的反馈内容..." required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">提交反馈</button>
+        </form>
+    </div>
+    
+    <div class="card" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">反馈须知</h3>
+        <ul style="list-style: disc; padding-left: 2rem; color: #666;">
+            <li>我们会认真对待每一条反馈，尽快回复您</li>
+            <li>请提供详细的反馈内容，以便我们更好地理解您的需求</li>
+            <li>如果您有紧急问题，建议直接联系客服</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

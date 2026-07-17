@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - Winner Train 韦能健身{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">💪</div>
+                <h1 class="auth-title">欢迎回来</h1>
+                <p class="auth-subtitle">登录 Winner Train，开启你的健身之旅</p>
+            </div>
+
+            <form method="POST" class="auth-form">
+                <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">👤</span>
+                        用户名
+                    </label>
+                    <input type="text" name="username" required placeholder="请输入用户名" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">🔒</span>
+                        密码
+                    </label>
+                    <input type="password" name="password" required placeholder="请输入密码" class="form-input">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">登 录</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>还没有账号？<a href="{{ url_for('register') }}">立即注册</a></p>
+            </div>
+
+            <div class="auth-back">
+                <a href="{{ url_for('index') }}">← 返回首页</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

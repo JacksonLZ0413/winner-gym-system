@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}注册 - Winner Train 韦能健身{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">💪</div>
+                <h1 class="auth-title">加入 Winner Train</h1>
+                <p class="auth-subtitle">创建账号，开始你的健身之旅</p>
+            </div>
+
+            <form method="POST" class="auth-form">
+                <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">👤</span>
+                        用户名
+                    </label>
+                    <input type="text" name="username" required placeholder="请输入用户名" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">🔒</span>
+                        密码
+                    </label>
+                    <input type="password" name="password" required placeholder="请输入密码" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">📛</span>
+                        姓名
+                    </label>
+                    <input type="text" name="name" required placeholder="请输入姓名" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">📱</span>
+                        手机号
+                    </label>
+                    <input type="tel" name="phone" placeholder="请输入手机号（选填）" class="form-input">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">注 册</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>已有账号？<a href="{{ url_for('login') }}">立即登录</a></p>
+            </div>
+
+            <div class="auth-back">
+                <a href="{{ url_for('index') }}">← 返回首页</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

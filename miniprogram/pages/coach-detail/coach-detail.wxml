@@ -1,0 +1,86 @@
+<view class="container" wx:if="{{coach}}">
+  <view class="header">
+    <view class="avatar-wrapper">
+      <view class="avatar">
+        <text class="avatar-text">{{coach.name.charAt(0)}}</text>
+      </view>
+      <view class="rating-badge">
+        <text class="star">★</text>
+        <text>{{coach.rating}}</text>
+      </view>
+    </view>
+    <view class="info">
+      <text class="name">{{coach.name}}</text>
+      <text class="specialty">{{coach.specialty}}</text>
+      <text class="price">¥{{coach.price}}/课时</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">教练简介</text>
+    <text class="bio">{{coach.bio}}</text>
+    <view class="stats">
+      <view class="stat-item">
+        <text class="stat-value">{{coach.experience}}</text>
+        <text class="stat-label">年经验</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{coach.rating_count}}</text>
+        <text class="stat-label">评价数</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">可授课程</text>
+    <view class="courses-list">
+      <view class="course-item" wx:for="{{courses}}" wx:key="id" bindtap="selectCourse" data-id="{{item.id}}" data-name="{{item.name}}">
+        <view class="course-radio {{selectedCourse === item.id ? 'selected' : ''}}">
+          <view class="radio-inner" wx:if="{{selectedCourse === item.id}}"></view>
+        </view>
+        <view class="course-info">
+          <text class="course-name">{{item.name}}</text>
+          <text class="course-desc">{{item.description}}</text>
+        </view>
+        <text class="course-price">¥{{item.price}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">选择日期</text>
+    <scroll-view class="date-scroll" scroll-x>
+      <view class="date-list">
+        <view class="date-item {{selectedDate === item.date ? 'selected' : ''}}" wx:for="{{weekDates}}" wx:key="item.date" bindtap="selectDate" data-date="{{item.date}}">
+          <text class="date-day">{{item.dayText}}</text>
+          <text class="date-date">{{item.dateText}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">选择时间</text>
+    <view class="time-slots">
+      <view class="time-slot {{item.booked ? 'disabled' : (selectedTime === item.time && selectedDate === item.date ? 'selected' : '')}}" 
+            wx:for="{{timeSlots}}" wx:key="date+time" wx:if="{{item.date === selectedDate}}" bindtap="selectTime" data-date="{{item.date}}" data-time="{{item.time}}" data-booked="{{item.booked}}">
+        <text>{{item.time}}</text>
+        <text class="status" wx:if="{{item.booked}}">已约</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">备注信息</text>
+    <textarea class="note-input" placeholder="请输入备注信息（选填）" value="{{note}}" bindinput="onNoteInput" />
+  </view>
+
+  <view class="footer">
+    <view class="btn-secondary" bindtap="goBack">返回</view>
+    <view class="btn-primary" bindtap="submitBooking">立即预约</view>
+  </view>
+</view>
+
+<view class="loading" wx:else>
+  <text>加载中...</text>
+</view>
