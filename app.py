@@ -87,6 +87,7 @@ def init_database():
     if not os.path.exists(Config.DB_PATH):
         init_db()
 
+init_database()
+
 if __name__ == '__main__':
-    init_database()
     app.run(host='0.0.0.0', port=5001, debug=True)
